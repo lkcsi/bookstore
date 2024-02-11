@@ -25,5 +25,19 @@ pipeline {
                 }
             }
         }
+        stage("test") {
+            environment {
+                BOOK_USER='test'
+                PASSWORD='password'
+                ENDPOINT='http:localhost:8081'
+            }
+            steps {
+                dir('tests') {
+                    git url: 'https://github.com/lkcsi/bookstore-api-test.git'
+                }
+                sh 'pip install requirements.txt'
+                sh 'pytest -k ""'
+            }
+        }
     }
 }
