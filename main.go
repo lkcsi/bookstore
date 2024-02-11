@@ -75,5 +75,5 @@ func main() {
 }
 
 func healthCheck(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"status": "OK"})
+	c.IndentedJSON(http.StatusOK, gin.H{"status": "O.K."})
 }
