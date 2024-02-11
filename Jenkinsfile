@@ -33,7 +33,7 @@ pipeline {
             }
             steps {
                 dir('tests') {
-                    git url: 'https://github.com/lkcsi/bookstore-api-test.git'
+                    git branch: 'main', url: 'https://github.com/lkcsi/bookstore-api-test.git'
                 }
                 sh 'pip install requirements.txt'
                 sh 'pytest -k ""'
