@@ -12,6 +12,10 @@ pipeline {
         stage("build") {
             steps {
                 echo 'build'
+                dir('app') {
+                    git branch: 'main', url: 'https://github.com/lkcsi/bookstore.git'
+                }
+                sh 'cd app'
                 script {
                     try {
                         sh 'docker stop $(docker ps -a -q)'
@@ -35,6 +39,7 @@ pipeline {
                 dir('tests') {
                     git branch: 'main', url: 'https://github.com/lkcsi/bookstore-api-test.git'
                 }
+                sh 'cd tests'
                 sh 'pip install requirements.txt'
                 sh 'pytest -k ""'
             }
