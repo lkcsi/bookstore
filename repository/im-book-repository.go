@@ -17,6 +17,8 @@ func (r *imBookRepository) DeleteAll() error {
 
 func NewImBookRepository() BookRepository {
 	books := make([]entity.Book, 0)
+	q := 5
+	books = append(books, entity.Book{Id: "1", Title: "Title_1", Author: "Author_1", Quantity: &q})
 	return &imBookRepository{books: books}
 }
 

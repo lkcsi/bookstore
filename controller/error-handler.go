@@ -8,7 +8,7 @@ import (
 	"github.com/lkcsi/bookstore/custerror"
 )
 
-func SetError(context *gin.Context, err error) {
+func setApiError(context *gin.Context, err error) {
 	switch err.(type) {
 	case validator.ValidationErrors:
 		s := err.(validator.ValidationErrors)
