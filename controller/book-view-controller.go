@@ -24,11 +24,7 @@ func NewBookViewController(s *service.BookService) *bookViewController {
 func (c *bookViewController) Save(context *gin.Context) {
 	var requestedBook entity.Book
 	if err := context.ShouldBind(&requestedBook); err != nil {
-		context.Writer.Header().Add("HX-Retarget", "#errors")
-		context.Writer.Header().Add("HX-Reswap", "innerHTML")
-		tmpl, _ := template.New("t").Parse(fmt.Sprintf("<p class='alert alert-danger'>%s</p>", err.Error()))
-		tmpl.Execute(context.Writer, nil)
-		context.AbortWithStatus(400)
+		setViewError(context, err)
 		return
 	}
 
