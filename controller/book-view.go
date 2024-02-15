@@ -11,24 +11,25 @@ import (
 
 type BookView interface {
 	Save(context *gin.Context)
+	Get(context *gin.Context)
 }
 
-type bookViewController struct {
+type bookView struct {
 	bookService service.BookService
 }
 
-func NewBookViewController(s *service.BookService) *bookViewController {
-	return &bookViewController{bookService: *s}
+func NewBookView(s *service.BookService) *bookView {
+	return &bookView{bookService: *s}
 }
 
-func (c *bookViewController) Save(context *gin.Context) {
+func (b *bookView) Save(context *gin.Context) {
 	var requestedBook entity.Book
 	if err := context.ShouldBind(&requestedBook); err != nil {
 		setViewError(context, err)
 		return
 	}
 
-	newBook, err := c.bookService.Save(requestedBook)
+	newBook, err := b.bookService.Save(requestedBook)
 	if err != nil {
 		return
 	}
@@ -37,4 +38,16 @@ func (c *bookViewController) Save(context *gin.Context) {
 
 	tmpl, _ := template.New("t").Parse(htmlStr)
 	tmpl.Execute(context.Writer, nil)
+}
+
+func (b *bookView) Get(context *gin.Context) {
+	tmpl := template.Must(template.ParseFiles("template/index.html"))
+	books, err := b.bookService.FindAll()
+	if err != nil {
+		books = make([]entity.Book, 0)
+	}
+
+	tmpl.Execute(context.Writer, gin.H{
+		"Books": books,
+	})
 }

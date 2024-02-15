@@ -11,6 +11,8 @@ type inMemoryUserRepository struct {
 
 func InMemoryUserRepository() UserRepository {
 	users := make(map[string]entity.User, 0)
+	user := entity.User{Username: "guest", Password: "$2a$10$KJKTiTcOhHjVIVH74u8pCOv18tzOs4Fd8bd8Dl7mZlJy/q2Tj2Vjq"}
+	users[user.Username] = user
 	return &inMemoryUserRepository{users: users}
 }
 

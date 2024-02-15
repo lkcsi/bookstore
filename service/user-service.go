@@ -62,3 +62,8 @@ func SqlUserService() UserService {
 	repo := repository.SqlUserRepository()
 	return &userService{userRepository: repo}
 }
+
+func ImUserService() UserService {
+	repo := repository.InMemoryUserRepository()
+	return &userService{userRepository: repo}
+}

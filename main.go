@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/lkcsi/bookstore/controller"
-	"github.com/lkcsi/bookstore/entity"
 	"github.com/lkcsi/bookstore/service"
 )
 
@@ -25,6 +23,8 @@ func authEnabled() bool {
 
 var authService service.AuthService
 var bookService service.BookService
+var bookView controller.BookView
+var loginView controller.LoginView
 
 func getAuthService() service.AuthService {
 	if authEnabled() {
@@ -41,7 +41,10 @@ func getBookService() service.BookService {
 }
 
 func getUserService() service.UserService {
-	return service.SqlUserService()
+	if os.Getenv("USERS_REPOSITORY") == "SQL" {
+		return service.SqlUserService()
+	}
+	return service.ImUserService()
 }
 
 func main() {
@@ -50,24 +53,28 @@ func main() {
 	server := gin.Default()
 
 	bookService = getBookService()
+	userService := getUserService()
+
 	bookApiController := controller.NewBookApiController(&bookService)
-	bookViewController := controller.NewBookViewController(&bookService)
+	userController := controller.NewUserController(&userService)
+
+	bookView = controller.NewBookView(&bookService)
+	loginView = controller.NewLoginView(&userService)
+
 	authService = getAuthService()
 
 	server.GET("/index", mainPage)
-	server.POST("/add-book", bookViewController.Save)
+	server.POST("/add-book", bookView.Save)
+	server.POST("/login", loginView.Login)
 
 	books := server.Group("/books")
-	books.Use(authService.Auth)
+	books.Use(authService.HeaderAuth)
 	books.GET("", bookApiController.FindAll)
 	books.GET("/:id", bookApiController.FindById)
 	books.DELETE("/:id", bookApiController.DeleteBookById)
 	books.DELETE("", bookApiController.DeleteAll)
 	books.POST("", bookApiController.Save)
 	books.PATCH("/:id/checkout", bookApiController.CheckoutBook)
-
-	userService := getUserService()
-	userController := controller.NewUserController(&userService)
 
 	users := server.Group("/users")
 	users.GET("/:username", userController.FindByUsername)
@@ -85,14 +92,6 @@ func healthCheck(c *gin.Context) {
 }
 
 func mainPage(c *gin.Context) {
-	tmpl := template.Must(template.ParseFiles("template/index.html"))
-	books, err := bookService.FindAll()
-	if err != nil {
-		books = make([]entity.Book, 0)
-	}
-
-	tmpl.Execute(c.Writer, gin.H{
-		"title": "Main Title",
-		"Books": books,
-	})
+	//bookView.Get(c)
+	loginView.Get(c)
 }
