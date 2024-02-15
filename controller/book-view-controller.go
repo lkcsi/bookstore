@@ -37,6 +37,4 @@ func (c *bookViewController) Save(context *gin.Context) {
 
 	tmpl, _ := template.New("t").Parse(htmlStr)
 	tmpl.Execute(context.Writer, nil)
-
-	//context.IndentedJSON(http.StatusCreated, newBook)
 }
