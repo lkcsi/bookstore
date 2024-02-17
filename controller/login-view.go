@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"html/template"
 
 	"github.com/gin-gonic/gin"
@@ -35,10 +34,9 @@ func (l *loginView) Login(context *gin.Context) {
 	}
 	token, err := l.userService.Login(&requestUser)
 	if err != nil {
-		fmt.Println(err.Error())
 		setViewError(context, err)
 		return
 	}
-	fmt.Println("3")
-	context.SetCookie("auth", token, (15 * 3600), "/", "localhost", false, true)
+	context.SetCookie("auth", token, (1 * 60), "/", "localhost", false, true)
+	context.Writer.Header().Add("HX-Redirect", "/index")
 }

@@ -19,6 +19,9 @@ func NewImBookRepository() BookRepository {
 	books := make([]entity.Book, 0)
 	q := 5
 	books = append(books, entity.Book{Id: "1", Title: "Title_1", Author: "Author_1", Quantity: &q})
+	books = append(books, entity.Book{Id: "2", Title: "Title_2", Author: "Author_2", Quantity: &q})
+	books = append(books, entity.Book{Id: "3", Title: "Title_3", Author: "Author_3", Quantity: &q})
+	books = append(books, entity.Book{Id: "4", Title: "Title_4", Author: "Author_4", Quantity: &q})
 	return &imBookRepository{books: books}
 }
 

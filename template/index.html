@@ -1,3 +1,4 @@
+{{ define "index" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,57 +9,22 @@
     <title>Document</title>
 </head>
 <body>
-    <div class="container">
-        <div class="row mt-4"></div>
-            <div class="col">
-                <h2 class="mb-4">Book List</h2>
-                <table class="table table-primary">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody id="book-list">
-                        {{ range .Books }}
-                        {{ block "book-list-element" .}}
-                            <tr>
-                                <td>{{ .Title }}</td>
-                                <td>{{ .Author }}</td>
-                                <td>{{ .Quantity }}</td>
-                            </tr>
-                        {{ end }}
-                        {{ end }}
-                    </tbody>
-                </table>
-            </div>
-            <div class="row mt-4">
-                <div class="col">
-                <h2 class="mb-4">Add Book</h2>
-                    <form hx-post="/add-book" hx-target="#book-list" hx-swap="beforeend" hx-indicator="#spinner">
-                        <div class="mb-2">
-                            <label for="book-title">Title</label>
-                            <input type="text" name="title" id="book-title" class="form-control" />
-                        </div>
-                        <div class="mb-2">
-                            <label for="book-author">Author</label>
-                            <input type="text" name="author" id="book-author" class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label for="book-quantity">Quantity</label>
-                            <input type="number" name="quantity" id="book-quantity" class="form-control" />
-                        </div>
-                        <div id="errors"> </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            <span class="spinner-border spinner-border-sm htmx-indicator" id="spinner" role="status" aria-hidden="true"></span>
-                            Submit
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Bookstore</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-link" href="/books">Home</a>
+            <a class="nav-link" href="/my-books">My Books</a>
+            <button class="btn btn-primary d-flex">Logout</a>
+        </div>
         </div>
     </div>
+    </nav>
+    {{ template "content" .}}
 </body>
 </html>
+{{ end }}

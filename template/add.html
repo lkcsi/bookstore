@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="row mt-4">
+        <div class="col">
+        <h2 class="mb-4">Add Book</h2>
+            <form hx-post="/add-book" hx-target="#book-list" hx-swap="beforeend" hx-indicator="#spinner">
+                <div class="mb-2">
+                    <label for="book-title">Title</label>
+                    <input type="text" name="title" id="book-title" class="form-control" />
+                </div>
+                <div class="mb-2">
+                    <label for="book-author">Author</label>
+                    <input type="text" name="author" id="book-author" class="form-control" />
+                </div>
+                <div class="mb-2">
+                    <label for="book-quantity">Quantity</label>
+                    <input type="number" name="quantity" id="book-quantity" class="form-control" />
+                </div>
+                <div id="errors"> </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <span class="spinner-border spinner-border-sm htmx-indicator" id="spinner" role="status" aria-hidden="true"></span>
+                    Submit
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

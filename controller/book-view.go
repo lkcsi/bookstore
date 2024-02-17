@@ -11,6 +11,7 @@ import (
 
 type BookView interface {
 	Save(context *gin.Context)
+	Checkout(context *gin.Context)
 	Get(context *gin.Context)
 }
 
@@ -20,6 +21,15 @@ type bookView struct {
 
 func NewBookView(s *service.BookService) *bookView {
 	return &bookView{bookService: *s}
+}
+
+func checkoutButtonHtml(id string) string {
+	return fmt.Sprintf("<button class='btn btn-success' hx-target='#book-%s' hx-post='/checkout-book/%s' hx-swap='outerHTML'> Checkout </button>", id, id)
+}
+
+func itemHtml(book *entity.Book) string {
+	return fmt.Sprintf("<tr id='book-%s'><td>%s</td><td>%s</td><td>%d</td><td>%s</td></tr>",
+		book.Id, book.Title, book.Author, *book.Quantity, checkoutButtonHtml(book.Id))
 }
 
 func (b *bookView) Save(context *gin.Context) {
@@ -33,21 +43,30 @@ func (b *bookView) Save(context *gin.Context) {
 	if err != nil {
 		return
 	}
-	htmlStr := fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%d</td></tr>",
-		newBook.Title, newBook.Author, *newBook.Quantity)
 
-	tmpl, _ := template.New("t").Parse(htmlStr)
+	tmpl, _ := template.New("t").Parse(itemHtml(newBook))
 	tmpl.Execute(context.Writer, nil)
 }
 
 func (b *bookView) Get(context *gin.Context) {
-	tmpl := template.Must(template.ParseFiles("template/index.html"))
+	tmpl, _ := template.New("").ParseFiles("template/index.html", "template/books.html")
 	books, err := b.bookService.FindAll()
 	if err != nil {
 		books = make([]entity.Book, 0)
 	}
 
-	tmpl.Execute(context.Writer, gin.H{
+	tmpl.ExecuteTemplate(context.Writer, "index", gin.H{
 		"Books": books,
 	})
+}
+
+func (b *bookView) Checkout(context *gin.Context) {
+	id := context.Param("id")
+	book, err := b.bookService.Checkout(id)
+	if err != nil {
+		setViewError(context, err)
+	}
+
+	tmpl, _ := template.New("t").Parse(itemHtml(book))
+	tmpl.Execute(context.Writer, nil)
 }

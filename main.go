@@ -59,15 +59,19 @@ func main() {
 	userController := controller.NewUserController(&userService)
 
 	bookView = controller.NewBookView(&bookService)
+	myBookView := controller.NewMyBookView(&bookService)
 	loginView = controller.NewLoginView(&userService)
 
 	authService = getAuthService()
 
 	server.GET("/index", mainPage)
+	server.GET("/books", bookView.Get)
+	server.GET("/my-books", myBookView.Get)
 	server.POST("/add-book", bookView.Save)
+	server.POST("/checkout-book/:id", bookView.Checkout)
 	server.POST("/login", loginView.Login)
 
-	books := server.Group("/books")
+	books := server.Group("/api/books")
 	books.Use(authService.HeaderAuth)
 	books.GET("", bookApiController.FindAll)
 	books.GET("/:id", bookApiController.FindById)
@@ -76,7 +80,7 @@ func main() {
 	books.POST("", bookApiController.Save)
 	books.PATCH("/:id/checkout", bookApiController.CheckoutBook)
 
-	users := server.Group("/users")
+	users := server.Group("/api/users")
 	users.GET("/:username", userController.FindByUsername)
 	users.POST("", userController.Save)
 	users.POST("/login", userController.Login)
@@ -88,10 +92,14 @@ func main() {
 }
 
 func healthCheck(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"status": "O.K."})
+	c.IndentedJSON(http.StatusOK, gin.H{"status": "OK"})
 }
 
 func mainPage(c *gin.Context) {
-	//bookView.Get(c)
-	loginView.Get(c)
+	_, err := c.Cookie("auth")
+	if err != nil {
+		loginView.Get(c)
+		return
+	}
+	bookView.Get(c)
 }

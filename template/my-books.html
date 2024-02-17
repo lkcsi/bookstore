@@ -1,0 +1,34 @@
+{{ define "content" }}
+<div class="container">
+    <div class="row mt-4"></div>
+        <div class="col">
+            <h2 class="mb-4">Book List</h2>
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Return</th>
+                    </tr>
+                </thead>
+                <tbody id="book-list">
+                    {{ range .Books }}
+                    {{ block "book-list-element" .}}
+                        <tr id="book-{{ .Id }}">
+                            <td>{{ .Title }}</td>
+                            <td>{{ .Author }}</td>
+                            <td>
+                                <button class="btn btn-success" hx-target="#book-{{ .Id }}" 
+                                hx-post="/return-book/{{ .Id }}" hx-swap="delete">
+                                    Return
+                                </button>
+                            </td>
+                        </tr>
+                    {{ end }}
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{ end }}
