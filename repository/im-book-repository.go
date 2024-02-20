@@ -6,32 +6,32 @@ import (
 )
 
 type imBookRepository struct {
-	books []entity.Book
+	db *ImDatabase
 }
 
 // DeleteAll implements BookRepository.
 func (r *imBookRepository) DeleteAll() error {
-	r.books = make([]entity.Book, 0)
+	r.db.Books = make([]entity.Book, 0)
 	return nil
 }
 
-func NewImBookRepository() BookRepository {
-	books := make([]entity.Book, 0)
-	q := 5
-	books = append(books, entity.Book{Id: "1", Title: "Title_1", Author: "Author_1", Quantity: &q})
-	books = append(books, entity.Book{Id: "2", Title: "Title_2", Author: "Author_2", Quantity: &q})
-	books = append(books, entity.Book{Id: "3", Title: "Title_3", Author: "Author_3", Quantity: &q})
-	books = append(books, entity.Book{Id: "4", Title: "Title_4", Author: "Author_4", Quantity: &q})
-	return &imBookRepository{books: books}
+func ImBookRepository(db *ImDatabase) BookRepository {
+	return &imBookRepository{db: db}
+}
+
+func quantity(value int) *int {
+	result := new(int)
+	*result = value
+	return result
 }
 
 func (bs *imBookRepository) Save(book *entity.Book) error {
-	bs.books = append(bs.books, *book)
+	bs.db.Books = append(bs.db.Books, *book)
 	return nil
 }
 
 func (bs *imBookRepository) Update(id string, updated *entity.Book) error {
-	book, err := bs.findBookById(id)
+	book, err := bs.db.FindBookById(id)
 	if err != nil {
 		return err
 	}
@@ -43,11 +43,11 @@ func (bs *imBookRepository) Update(id string, updated *entity.Book) error {
 }
 
 func (bs *imBookRepository) FindAll() ([]entity.Book, error) {
-	return bs.books, nil
+	return bs.db.Books, nil
 }
 
 func (bs *imBookRepository) FindById(id string) (*entity.Book, error) {
-	return bs.findBookById(id)
+	return bs.db.FindBookById(id)
 }
 
 func (bs *imBookRepository) DeleteById(id string) error {
@@ -55,25 +55,16 @@ func (bs *imBookRepository) DeleteById(id string) error {
 	if err != nil {
 		return err
 	}
-	bs.books = append(bs.books[:index], bs.books[index+1:]...)
+	bs.db.Books = append(bs.db.Books[:index], bs.db.Books[index+1:]...)
 	return nil
 }
 
 func (bs *imBookRepository) findBookIndex(id string) (int, error) {
-	for i, book := range bs.books {
+	for i, book := range bs.db.Books {
 		if book.Id == id {
 			return i, nil
 		}
 	}
 	return 0, custerror.BookNotFoundError(id)
 
-}
-
-func (bs *imBookRepository) findBookById(id string) (*entity.Book, error) {
-	for i, book := range bs.books {
-		if book.Id == id {
-			return &bs.books[i], nil
-		}
-	}
-	return nil, custerror.BookNotFoundError(id)
 }

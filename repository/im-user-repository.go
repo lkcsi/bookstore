@@ -9,7 +9,7 @@ type inMemoryUserRepository struct {
 	users map[string]entity.User
 }
 
-func InMemoryUserRepository() UserRepository {
+func ImUserRepository() UserRepository {
 	users := make(map[string]entity.User, 0)
 	user := entity.User{Username: "test", Password: "$2a$10$KJKTiTcOhHjVIVH74u8pCOv18tzOs4Fd8bd8Dl7mZlJy/q2Tj2Vjq"}
 	users[user.Username] = user

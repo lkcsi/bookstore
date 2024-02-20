@@ -12,7 +12,6 @@ type BookApiController interface {
 	FindAll(context *gin.Context)
 	FindById(context *gin.Context)
 	DeleteById(context *gin.Context)
-	Checkout(context *gin.Context)
 	Save(context *gin.Context)
 	DeleteAll(context *gin.Context)
 }
@@ -66,15 +65,6 @@ func (c *bookController) DeleteBookById(context *gin.Context) {
 		return
 	}
 	context.IndentedJSON(http.StatusNoContent, nil)
-}
-func (c *bookController) CheckoutBook(context *gin.Context) {
-	id := context.Param("id")
-	book, err := c.bookService.Checkout(id)
-	if err != nil {
-		setApiError(context, err)
-		return
-	}
-	context.IndentedJSON(http.StatusAccepted, book)
 }
 
 func (c *bookController) FindById(context *gin.Context) {

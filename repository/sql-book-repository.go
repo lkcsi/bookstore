@@ -15,7 +15,7 @@ type sqlBookRepository struct {
 	db *sql.DB
 }
 
-func NewSqlBookRepository() BookRepository {
+func SqlBookRepository() BookRepository {
 	pwd := os.Getenv("BOOKS_DB_PASSWORD")
 	port := os.Getenv("BOOKS_DB_PORT")
 	host := os.Getenv("BOOKS_DB_HOST")
@@ -36,10 +36,10 @@ func (r *sqlBookRepository) DeleteAll() error {
 
 func (repo *sqlBookRepository) FindAll() ([]entity.Book, error) {
 	res, err := repo.db.Query("SELECT id, title, author, quantity FROM books")
-	defer res.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Close()
 
 	result := make([]entity.Book, 0)
 	for res.Next() {

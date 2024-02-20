@@ -14,7 +14,6 @@ type BookService interface {
 	DeleteById(string) error
 	Checkout(string) (*entity.Book, error)
 	DeleteAll() error
-	Return(string) (*entity.Book, error)
 }
 
 type bookService struct {
@@ -25,15 +24,9 @@ func (b *bookService) DeleteAll() error {
 	return b.bookRepository.DeleteAll()
 }
 
-func InMemoryBookService() BookService {
-	repo := repository.NewImBookRepository()
-	bs := bookService{repo}
+func NewBookService(br *repository.BookRepository) BookService {
+	bs := bookService{*br}
 	return &bs
-}
-
-func NewSqlBookService() BookService {
-	repo := repository.NewSqlBookRepository()
-	return &bookService{repo}
 }
 
 func (bs *bookService) Save(book entity.Book) (*entity.Book, error) {

@@ -9,8 +9,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/lkcsi/bookstore/controller"
+	"github.com/lkcsi/bookstore/repository"
 	"github.com/lkcsi/bookstore/service"
 )
+
+var bookRepository repository.BookRepository
+var userRepository repository.UserRepository
+var userBookRepository repository.UserBookRepository
+var userService service.UserService
+var bookService service.BookService
+var userBookService service.UserBookService
 
 func authEnabled() bool {
 	v := os.Getenv("AUTH_ENABLED")
@@ -21,10 +29,22 @@ func authEnabled() bool {
 	return false
 }
 
-var authService service.AuthService
-var bookService service.BookService
-var bookView controller.BookView
-var loginView controller.LoginView
+func initServices() {
+	if os.Getenv("BOOKS_REPOSITORY") == "SQL" {
+
+		bookRepository = repository.SqlBookRepository()
+		userRepository = repository.SqlUserRepository()
+	} else {
+		database := repository.NewImDatabase()
+		bookRepository = repository.ImBookRepository(database)
+		userBookRepository = repository.ImUserBookRepository(database)
+		userRepository = repository.ImUserRepository()
+	}
+
+	bookService = service.NewBookService(&bookRepository)
+	userService = service.NewUserService(&userRepository)
+	userBookService = service.NewUserBookService(&userBookRepository, &bookRepository)
+}
 
 func getAuthService() service.AuthService {
 	if authEnabled() {
@@ -33,43 +53,17 @@ func getAuthService() service.AuthService {
 	return service.FakeAuthService()
 }
 
-func getBookService() service.BookService {
-	if os.Getenv("BOOKS_REPOSITORY") == "SQL" {
-		return service.NewSqlBookService()
-	}
-	return service.InMemoryBookService()
-}
-
-func getUserService() service.UserService {
-	if os.Getenv("USERS_REPOSITORY") == "SQL" {
-		return service.SqlUserService()
-	}
-	return service.ImUserService()
-}
-
 func main() {
 	godotenv.Load()
+	initServices()
 
 	server := gin.Default()
 
-	bookService = getBookService()
-	userService := getUserService()
-
 	bookApiController := controller.NewBookApiController(&bookService)
 	userController := controller.NewUserController(&userService)
+	userBookController := controller.NewUserBookController(&userBookService)
 
-	bookView = controller.NewBookView(&bookService)
-	myBookView := controller.NewMyBookView(&bookService)
-	loginView = controller.NewLoginView(&userService)
-
-	authService = getAuthService()
-
-	server.GET("/index", mainPage)
-	server.GET("/books", bookView.Get)
-	server.GET("/my-books", myBookView.Get)
-	server.POST("/add-book", bookView.Save)
-	server.POST("/checkout-book/:id", bookView.Checkout)
-	server.POST("/login", loginView.Login)
+	authService := getAuthService()
 
 	books := server.Group("/api/books")
 	books.Use(authService.HeaderAuth)
@@ -78,28 +72,24 @@ func main() {
 	books.DELETE("/:id", bookApiController.DeleteBookById)
 	books.DELETE("", bookApiController.DeleteAll)
 	books.POST("", bookApiController.Save)
-	books.PATCH("/:id/checkout", bookApiController.CheckoutBook)
+
+	userBooks := server.Group("/api/user-books")
+	userBooks.Use(authService.HeaderAuth)
+	userBooks.PATCH("/:username/checkout/:id", userBookController.Checkout)
+	userBooks.PATCH("/:username/return/:id", userBookController.Return)
+	userBooks.GET("", userBookController.FindAll)
+	userBooks.GET("/:username", userBookController.FindAllByUsername)
 
 	users := server.Group("/api/users")
 	users.GET("/:username", userController.FindByUsername)
 	users.POST("", userController.Save)
 	users.POST("/login", userController.Login)
 
-	health := server.Group("/health-check")
-	health.GET("", healthCheck)
+	server.GET("/api/health-check", healthCheck)
 
 	server.Run(fmt.Sprintf("0.0.0.0:%s", os.Getenv("BOOKS_API_PORT")))
 }
 
 func healthCheck(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"status": "OK"})
-}
-
-func mainPage(c *gin.Context) {
-	_, err := c.Cookie("auth")
-	if err != nil {
-		loginView.Get(c)
-		return
-	}
-	bookView.Get(c)
 }
