@@ -4,7 +4,8 @@ import "github.com/lkcsi/bookstore/entity"
 
 type UserBookRepository interface {
 	FindAll() ([]entity.UserBook, error)
-	Checkout(string, string) error
+	Find(string, string) (*entity.UserBook, error)
+	Save(string, string) error
+	Delete(string, string) error
 	FindAllByUsername(string) ([]entity.UserBook, error)
-	Return(string, string) error
 }

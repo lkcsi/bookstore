@@ -47,5 +47,5 @@ func (bs *ImDatabase) Find(username, bookId string) (int, error) {
 			return i, nil
 		}
 	}
-	return 0, custerror.UserBookNotFoundError(bookId, username)
+	return 0, custerror.UserBookNotFoundError(username, bookId)
 }

@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/lkcsi/bookstore/custerror"
 	"github.com/lkcsi/bookstore/entity"
 )
 
@@ -13,19 +12,26 @@ func ImUserBookRepository(db *ImDatabase) UserBookRepository {
 	return &imUserBookRepository{db}
 }
 
-func (bs *imUserBookRepository) Checkout(username, id string) error {
-	_, err := bs.db.Find(username, id)
-	if err == nil {
-		return custerror.AlreadyCheckedError(id, username)
-	}
-	book, err := bs.db.FindBookById(id)
+func (bs *imUserBookRepository) Save(username, bookId string) error {
+	bs.db.UserBooks = append(bs.db.UserBooks, entity.UserBook{Username: username, BookId: bookId})
+	return nil
+}
+
+func (bs *imUserBookRepository) Delete(username, bookId string) error {
+	idx, err := bs.db.Find(username, bookId)
 	if err != nil {
 		return err
 	}
-
-	*book.Quantity -= 1
-	bs.db.UserBooks = append(bs.db.UserBooks, entity.UserBook{Username: username, BookId: id})
+	bs.db.UserBooks = append(bs.db.UserBooks[:idx], bs.db.UserBooks[idx+1:]...)
 	return nil
+}
+
+func (bs *imUserBookRepository) Find(username, bookId string) (*entity.UserBook, error) {
+	idx, err := bs.db.Find(username, bookId)
+	if err != nil {
+		return nil, err
+	}
+	return &bs.db.UserBooks[idx], nil
 }
 
 func (bs *imUserBookRepository) FindAll() ([]entity.UserBook, error) {
@@ -49,18 +55,4 @@ func (bs *imUserBookRepository) FindAllByUsername(username string) ([]entity.Use
 		userBooks[idx] = userBook
 	}
 	return userBooks, nil
-}
-
-func (bs *imUserBookRepository) Return(username, bookId string) error {
-	index, err := bs.db.Find(username, bookId)
-	if err != nil {
-		return err
-	}
-	book, err := bs.db.FindBookById(bookId)
-	if err != nil {
-		return err
-	}
-	*book.Quantity += 1
-	bs.db.UserBooks = append(bs.db.UserBooks[:index], bs.db.UserBooks[index+1:]...)
-	return nil
 }

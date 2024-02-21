@@ -33,6 +33,7 @@ func initServices() {
 	if os.Getenv("BOOKS_REPOSITORY") == "SQL" {
 
 		bookRepository = repository.SqlBookRepository()
+		userBookRepository = repository.SqlUserBookRepository()
 		userRepository = repository.SqlUserRepository()
 	} else {
 		database := repository.NewImDatabase()
@@ -79,6 +80,7 @@ func main() {
 	userBooks.PATCH("/:username/return/:id", userBookController.Return)
 	userBooks.GET("", userBookController.FindAll)
 	userBooks.GET("/:username", userBookController.FindAllByUsername)
+	userBooks.GET("/:username/:id", userBookController.Find)
 
 	users := server.Group("/api/users")
 	users.GET("/:username", userController.FindByUsername)

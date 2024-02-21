@@ -22,13 +22,13 @@ CREATE TABLE users (
 
 INSERT INTO users (username, password)
 VALUES 
-	('test', '$2a$10$KJKTiTcOhHjVIVH74u8pCOv18tzOs4Fd8bd8Dl7mZlJy/q2Tj2Vjq')
+	('test', '$2a$10$KJKTiTcOhHjVIVH74u8pCOv18tzOs4Fd8bd8Dl7mZlJy/q2Tj2Vjq');
 
 
 CREATE TABLE user_books (
 	username VARCHAR(255) NOT NULL,
 	book_id VARCHAR(255) NOT NULL,
-	PRIMARY KEY(username, book_id)
-	FOREIGN KEY(username) REFERENCES users(username)
+	PRIMARY KEY(username, book_id),
+	FOREIGN KEY(username) REFERENCES users(username),
 	FOREIGN KEY(book_id) REFERENCES books(id)
-)
+);

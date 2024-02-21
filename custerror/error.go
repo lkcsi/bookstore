@@ -28,7 +28,7 @@ func BookNotFoundError(id string) CustError {
 	return &custError{404, fmt.Sprintf("book with id: %s is not found", id)}
 }
 
-func UserBookNotFoundError(bookId, username string) CustError {
+func UserBookNotFoundError(username, bookId string) CustError {
 	return &custError{404, fmt.Sprintf("book with id: %s is not found in %s's books", bookId, username)}
 }
 
@@ -40,7 +40,7 @@ func OccupiedUsernameError(username string) CustError {
 	return &custError{400, fmt.Sprintf("username: %s has already been in use", username)}
 }
 
-func AlreadyCheckedError(bookId, username string) CustError {
+func AlreadyCheckedError(username, bookId string) CustError {
 	return &custError{400, fmt.Sprintf("book %s has already been checked out by %s", bookId, username)}
 }
 

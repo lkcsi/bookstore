@@ -10,6 +10,7 @@ import (
 type UserBookController interface {
 	Return(context *gin.Context)
 	FindAll(context *gin.Context)
+	Find(context *gin.Context)
 	FindAllByUsername(context *gin.Context)
 	Checkout(context *gin.Context)
 }
@@ -29,6 +30,17 @@ func (c *userBookController) FindAll(context *gin.Context) {
 		return
 	}
 	context.IndentedJSON(http.StatusOK, books)
+}
+
+func (c *userBookController) Find(context *gin.Context) {
+	username := context.Param("username")
+	id := context.Param("id")
+	book, err := c.userBookService.Find(username, id)
+	if err != nil {
+		setApiError(context, err)
+		return
+	}
+	context.IndentedJSON(http.StatusOK, book)
 }
 
 func (c *userBookController) FindAllByUsername(context *gin.Context) {
