@@ -10,6 +10,7 @@ services:
       BOOKS_REPOSITORY: ${BOOKS_REPOSITORY}
       BOOKS_DB_HOST: ${BOOKS_DB_HOST}
       BOOKS_DB_PASSWORD: ${BOOKS_DB_PASSWORD}
+      API_KEY: ${API_KEY}
     networks:
       - bookstore
     ports:
